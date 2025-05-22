@@ -1,6 +1,6 @@
 import "./App.css";
 import { CustomForm } from "./components/CustomForm";
-import { H1 } from "./components/ui/typography";
+import { H2 } from "./components/ui/typography";
 import { DisplayComponent } from "./components/DisplayComponent";
 import { useState } from "react";
 function App() {
@@ -8,10 +8,13 @@ function App() {
   return (
     <>
     <div className="space-y-4 space-x-4">
-      <H1>Обработчик изображений</H1>
+    <H2>Обработчик изображений</H2>
+    <div className="grid grid-cols-2 gap-4">
       <CustomForm onSubmit={setTextFromImage} />
       <DisplayComponent textFromImage={textFromImage}/>
     </div>
+    </div>
+   
       
     </>
   );

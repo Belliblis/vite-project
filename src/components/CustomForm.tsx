@@ -2,6 +2,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
+import { Textarea } from "./ui/textarea";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 type FormData = {
   command: string;
@@ -18,8 +21,10 @@ export const CustomForm: React.FC<{ onSubmit: (text: string) => void }> = ({ onS
     },
     mode: "onSubmit",
   });
-
+  const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const handleSubmit = async (data: FormData) => {
+    setLoading(true);
     if (localStorage.getItem("command") !== data.command) {
       localStorage.setItem("command", data.command);
     }
@@ -40,6 +45,8 @@ export const CustomForm: React.FC<{ onSubmit: (text: string) => void }> = ({ onS
       }
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,11 +62,10 @@ export const CustomForm: React.FC<{ onSubmit: (text: string) => void }> = ({ onS
             <FormItem>
               <FormLabel>Инструкция</FormLabel>
               <FormControl>
-                <Input
-                  type="text"
+                <Textarea
                   {...field}
                   placeholder="Напишите инструкцию по работе с изображением"
-                />
+                ></Textarea>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,7 +93,13 @@ export const CustomForm: React.FC<{ onSubmit: (text: string) => void }> = ({ onS
                   type="file"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) onChange(file);
+                    if (file) {
+                      onChange(file);
+                      const url = URL.createObjectURL(file);
+                      setPreviewUrl(url);
+                    } else {
+                      setPreviewUrl(null);
+                    }
                   }}
                   {...field}
                   value={undefined}
@@ -97,8 +109,24 @@ export const CustomForm: React.FC<{ onSubmit: (text: string) => void }> = ({ onS
             </FormItem>
           )}
         />
+{previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Предпросмотр"
+              className="mt-2 rounded-md max-h-64 object-contain border border-gray-300"
+            />
+          )}
+<Button type="submit" disabled={loading}>
+  {loading ? (
+    <>
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      Обработка...
+    </>
+  ) : (
+    "Отправить"
+  )}
+</Button>
 
-        <Button type="submit">Отправить</Button>
       </form>
     </Form>
   );
